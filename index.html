@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Blue Meadow 🌌</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@200;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-white: #ffffff;
+      --glass: rgba(255, 255, 255, 0.08);
+      --font-main: 'Anuphan', sans-serif;
+      --env-bg: #ffffff;
+      --env-flap: #f1f5f9;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0; font-family: var(--font-main); background: #020617;
+      color: var(--primary-white); min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+
+    .bg-video { position: fixed; inset: 0; z-index: -10; object-fit: cover; filter: brightness(0.4) saturate(1.2); }
+    .overlay { position: fixed; inset: 0; z-index: -9; background: radial-gradient(circle at center, transparent 0%, rgba(2, 6, 23, 0.8) 100%); }
+
+    .star {
+      position: absolute; background: white; border-radius: 50%;
+      opacity: 0; animation: twinkle var(--d) infinite; z-index: -8;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 0.7; transform: scale(1); }
+    }
+
+    #png-area { position: fixed; inset: 0; z-index: -5; pointer-events: none; }
+    .floating-item { position: absolute; opacity: 0; will-change: transform, opacity; }
+    @keyframes dreamDrift {
+      0% { transform: translateY(105vh) rotate(0deg); opacity: 0; }
+      20% { opacity: 0.3; }
+      80% { opacity: 0.3; }
+      100% { transform: translateY(-15vh) rotate(20deg); opacity: 0; }
+    }
+
+    .memory-png {
+      position: fixed; z-index: 250; width: 160px; height: auto;
+      filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6));
+      opacity: 0; transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: none;
+    }
+    .memory-show { opacity: 1; transform: scale(1.1) rotate(var(--r)); }
+
+    #custom-modal {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(2, 6, 23, 0.85);
+      display: none; align-items: center; justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+    .modal-content {
+      background: #ffffff; color: #1e293b; padding: 30px;
+      border-radius: 25px; width: 85%; max-width: 320px;
+      text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-btn-group { display: flex; gap: 10px; margin-top: 25px; justify-content: center; }
+    .m-btn {
+      padding: 12px 25px; border-radius: 15px; border: none;
+      font-family: var(--font-main); font-weight: 600; cursor: pointer;
+    }
+    .m-confirm { background: #020617; color: #fff; }
+    .m-cancel { background: #f1f5f9; color: #64748b; }
+
+    .container { width: 90%; max-width: 400px; z-index: 10; position: relative; }
+    .card {
+      background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+      border-radius: 40px; padding: 40px 30px; border: 1px solid rgba(255, 255, 255, 0.12);
+      text-align: center; animation: fadeIn 0.8s ease forwards;
+    }
+
+    .prog-bar { height: 2px; background: rgba(255, 255, 255, 0.1); margin-bottom: 40px; }
+    .prog-fill { height: 100%; width: 0%; background: #ffffff; transition: width 0.8s ease; }
+
+    .btn-group { display: flex; flex-direction: column; gap: 14px; }
+    .choice-btn {
+      font-family: var(--font-main); background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1); padding: 18px 25px;
+      border-radius: 20px; color: #cbd5e1; font-size: 16px; cursor: pointer;
+      position: relative; overflow: hidden; transition: 0.3s;
+    }
+    .choice-btn:active { background: rgba(255, 255, 255, 0.2); transform: scale(0.98); }
+
+    #gift-overlay {
+      position: fixed; inset: 0; background: rgba(2, 6, 23, 0.96);
+      z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+
+    .envelope-wrapper {
+      position: relative; width: 100%; max-width: 320px; height: 200px;
+      perspective: 1000px; cursor: pointer;
+    }
+
+    .envelope {
+      position: relative; width: 100%; height: 100%; background: var(--env-bg);
+      border-radius: 0 0 10px 10px; z-index: 20;
+    }
+    .envelope::before {
+      content: ''; position: absolute; z-index: 25; inset: 0;
+      background: var(--env-bg); clip-path: polygon(0 0, 50% 60%, 100% 0, 100% 100%, 0 100%);
+      border-radius: 0 0 10px 10px;
+    }
+    .flap {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--env-flap); clip-path: polygon(0 0, 50% 60%, 100% 0);
+      transform-origin: top; transition: transform 0.6s ease; z-index: 30;
+    }
+
+    .letter {
+      position: absolute; top: 10%; left: 5%; width: 90%; height: 80%;
+      background: white; padding: 30px 20px; border-radius: 12px; color: #1e293b;
+      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 15; opacity: 0; overflow-y: auto;
+      font-family: var(--font-main);
+    }
+
+    .envelope-wrapper.open .flap { transform: rotateX(180deg); }
+    .envelope-wrapper.open .letter {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 82vw; height: 58vh; max-width: 340px;
+      opacity: 1; z-index: 300;
+      animation: floatLetter 4s ease-in-out infinite 0.8s;
+    }
+    @keyframes floatLetter {
+      0%, 100% { transform: translate(-50%, -50%); }
+      50% { transform: translate(-50%, -52%); }
+    }
+
+    #typewriter-text { font-size: 16px; line-height: 1.8; white-space: pre-wrap; padding-bottom: 20px; }
+    .hidden { display: none !important; }
+
+    #restart-btn {
+      position: fixed; bottom: 8%; padding: 15px 30px; border-radius: 25px;
+      border: none; background: white; color: black; font-weight: 600; z-index: 400; display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="custom-modal">
+    <div class="modal-content">
+      <div id="modal-text" style="font-size: 18px; line-height: 1.5;"></div>
+      <div class="modal-btn-group" id="modal-btns"></div>
+    </div>
+  </div>
+
+  <audio id="myAudio" loop><source src="landokmai-first-love.mp3" type="audio/mpeg"></audio>
+  <video class="bg-video" autoplay muted loop playsinline>
+    <source src="https://assets.mixkit.co/videos/preview/mixkit-clouds-and-blue-sky-background-loop-4632-large.mp4" type="video/mp4">
+  </video>
+  <div class="overlay"></div>
+  <div id="stars-container"></div>
+  <div id="png-area"></div>
+
+  <div class="container">
+    <div id="start-screen" class="card">
+      <h1 style="font-weight:200;">บทพิสูจน์รักแท้ของฉัน</h1>
+      <p style="color:#94a3b8; margin-bottom:40px;">ลองเล่นหน่อยนะคะ</p>
+      <button style="width:100%; padding:20px; border-radius:30px; border:none; background:#fff; font-weight:600; cursor:pointer;" onclick="showConfirmation(1)">เริ่มการเดินทาง</button>
+    </div>
+
+    <div id="quiz-screen" class="card hidden">
+      <div class="prog-bar"><div id="progress" class="prog-fill"></div></div>
+      <div id="q-text" style="font-size:22px; margin-bottom:35px; line-height:1.5;"></div>
+      <div id="choices-area" class="btn-group"></div>
+    </div>
+
+    <div id="result-screen" class="card hidden">
+      <h1 style="color:#f87171; font-size:28px;">แย่จัง ผิดหมดเลย</h1>
+      <p style="color:#94a3b8; margin:20px 0;">ความถูกต้อง:...0%</p>
+    </div>
+  </div>
+
+  <div id="gift-overlay" class="hidden">
+    <div class="envelope-wrapper" id="env-wrap">
+      <div class="envelope">
+        <div class="flap"></div>
+        <div class="letter">
+          <div style="font-size:18px; font-weight:600; margin-bottom:15px; color:#db2777;">ถึงหลิน </div>
+          <div id="typewriter-text"></div>
+        </div>
+      </div>
+    </div>
+    <button id="restart-btn" onclick="location.reload()">เล่นใหม่อีกครั้ง</button>
+  </div>
+
+  <script>
+    const questions = [
+      { q: "คำถามง่าย ๆ เค้าเกิดวันเดือนปีไหน ", c: ["12/02/06", "06/06/06", "06/04/06", "03/02/06"] },
+      { q: "เวลาว่างเค้าชอบทำอะไร", c: ["เล่นเกม", "ดูหนัง", "ดูเมะ", "ถูกทุกข้อ"] },
+      { q: "คำพูดติดปากเวลาเค้าโกรธเธอ", c: ["ช่างมัน", "ไม่เป็นไร", "ไอสาด", "เหอะ"] },
+      { q: "เค้าชื่ออะไร", c: ["พู่กัน", "พันกู้", "เพนกวิ้น", "คาริน่า"] },
+      { q: "วันที่เราเคยคบกันคือวันที่เท่าไหร่", c: ["17", "12", "13", "14"] },
+      { q: "เค้าชอบสีอะไร ิ ิ", c: ["ขาว", "ม่วง", "ชมพู", "เขียว"] },
+      { q: "เวลางอนกันเสร็จเค้าชอบชวนทำอะไร", c: ["จิ้ม", "อ่านหนังสือ", "ทำกับข้าว", "เต้นหมอลำ"] },
+      { q: "เพลงของ LANDOKMAI ที่เค้าเคยบอกเธอว่าชอบ", c: ["เพลงรักเพลงแรก", "Tsuki", "The Diary", "ยอม"] },
+      { q: "เค้าอยากไปที่ไหน", c: ["ทะเล", "เชียงใหม่", "บ้านเธอ", "ลานเวทีหมอลำ"] },
+      { q: "แมวเค้าชื่ออะไร", c: ["เสก โลโซ", "โซโร", "โกโรโกโส", "โซโล"] },
+      { q: "สุดท้ายนี้เธอรักเค้าไหม", c: ["งอน", "มิรัก", "รักมากเลย", "เหอะ"] }
+    ];
+
+    let current = 0;
+    const letterFullText = "ทำไมไม่ถูกเลยเนี่ย ล้อเล่นค่ะ เค้าตั้งใจทำให้มันเป็นแบบนี้ \n\nเค้ารักเธอนะ เบิ้บบู ขอโทษที่ทำให้งอนนะคะ ไม่รู้เธอจะชอบไหม มันเลี่ยนแท้ แต่เค้าอยากทำให้ ตั้งใจทำให้เธอเลยนะ อะไรที่ทำให้เธอไม่สบายใจก็ขอโทษนะคะ วาเลนไทน์นี้อาจจะไม่ได้ซื้อดอกไม้ช่อใหญ่ ๆ ให้ แต่เค้ารักเธอนะ \n\nHAPPY VALENTINES นะคะที่รัก";
+
+    function openModal(text, buttons) {
+      const modal = document.getElementById('custom-modal');
+      const textEl = document.getElementById('modal-text');
+      const btnArea = document.getElementById('modal-btns');
+      textEl.innerText = text;
+      btnArea.innerHTML = "";
+      buttons.forEach(b => {
+        const btn = document.createElement('button');
+        btn.className = `m-btn ${b.class}`;
+        btn.innerText = b.label;
+        btn.onclick = () => {
+          modal.style.display = "none";
+          if(b.callback) b.callback();
+        };
+        btnArea.appendChild(btn);
+      });
+      modal.style.display = "flex";
+    }
+
+    function showConfirmation(step) {
+      if(step === 1) {
+        openModal("พร้อมยัง ตอบผิดโดนนะเว้ย", [
+          { label: "ยัง", class: "m-cancel" },
+          { label: "พร้อมละคร้าบ", class: "m-confirm", callback: () => showConfirmation(2) }
+        ]);
+      } else {
+        openModal("เอาดี ๆ ผิดเค้าโกรธนะ มันยาก", [
+          { label: "ขอยอมแพ้", class: "m-cancel" },
+          { label: "มั่นใจสุด ๆ มาเหอะ", class: "m-confirm", callback: startQuiz }
+        ]);
+      }
+    }
+
+    function createStars() {
+      const container = document.getElementById('stars-container');
+      for(let i=0; i<60; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + 'vw';
+        star.style.top = Math.random() * 100 + 'vh';
+        star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
+        star.style.setProperty('--d', (Math.random() * 3 + 2) + 's');
+        container.appendChild(star);
+      }
+    }
+    createStars();
+
+    function startQuiz() {
+      document.getElementById('myAudio').play().catch(e => {});
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.remove('hidden');
+      showQuestion();
+      setInterval(spawnDriftPNG, 1800);
+    }
+
+    function showQuestion() {
+      const q = questions[current];
+      document.getElementById('progress').style.width = ((current / questions.length) * 100) + "%";
+      document.getElementById('q-text').innerText = q.q;
+      const area = document.getElementById('choices-area');
+      area.innerHTML = "";
+      q.c.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = "choice-btn";
+        btn.innerText = choice;
+        btn.onclick = () => {
+          // --- แก้ไข Logic ข้อสุดท้ายให้เด้งตามคำตอบที่เลือก ---
+          if (current === questions.length - 1 && choice !== "รักมากเลย") {
+            let alertMsg = "";
+            switch(choice) {
+              case "งอน":
+                alertMsg = "เค้าง้อนะคะ อย่าเพิ่งงอนกันเลยนะ 🥺";
+                break;
+              case "มิรัก":
+                alertMsg = "ถ้าตอบว่าไม่รัก เค้าจะร้องไห้จริงๆ ด้วย! 😭";
+                break;
+              case "เหอะ":
+                alertMsg = "เหอะอะไรเล่า! ตอบใหม่ดีๆ เลยนะ 🤨";
+                break;
+              default:
+                alertMsg = "ทำดีๆ หลิน ตอบใหม่เร็ววว";
+            }
+            openModal(alertMsg, [{ label: "โอเคๆ ตอบใหม่ก็ได้", class: "m-confirm" }]);
+            btn.style.display = "none"; 
+            return;
+          }
+          
+          current++;
+          setTimeout(() => {
+            if (current < questions.length) showQuestion();
+            else showFakeResult();
+          }, 300);
+        };
+        area.appendChild(btn);
+      });
+    }
+
+    function showFakeResult() {
+      document.getElementById('quiz-screen').classList.add('hidden');
+      document.getElementById('result-screen').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('gift-overlay').classList.remove('hidden');
+      }, 3500);
+    }
+
+    function spawnMemoryImage() {
+      const img = document.createElement('img');
+      img.src = `img/${Math.floor(Math.random() * 14) + 1}.png`;
+      img.className = 'memory-png';
+      const isLeft = Math.random() > 0.5;
+      if(isLeft) img.style.left = 'calc(50% - 220px)';
+      else img.style.left = 'calc(50% + 60px)';
+      img.style.top = (Math.random() * 20 + 30) + 'vh';
+      img.style.setProperty('--r', (Math.random()*20-10)+'deg');
+      document.body.appendChild(img);
+      setTimeout(() => img.classList.add('memory-show'), 100);
+      setTimeout(() => {
+        img.classList.remove('memory-show');
+        setTimeout(() => img.remove(), 1000);
+      }, 4000);
+    }
+
+    function spawnDriftPNG() {
+      const area = document.getElementById('png-area');
+      const img = document.createElement('img');
+      img.src = `img/${Math.floor(Math.random() * 14) + 1}.png`;
+      img.className = 'floating-item';
+      img.style.left = Math.random() * 90 + '%';
+      img.style.width = '70px';
+      img.style.animation = `dreamDrift 10s linear forwards`;
+      area.appendChild(img);
+      setTimeout(() => img.remove(), 10000);
+    }
+
+    document.getElementById('env-wrap').onclick = function() {
+      if(!this.classList.contains('open')) {
+        this.classList.add('open');
+        setInterval(spawnMemoryImage, 4500);
+        setTimeout(() => {
+          let i = 0;
+          function type() {
+            if (i < letterFullText.length) {
+              document.getElementById('typewriter-text').innerHTML += letterFullText.charAt(i);
+              i++; 
+              document.querySelector('.letter').scrollTop = 9999;
+              setTimeout(type, 70);
+            } else {
+              document.getElementById('restart-btn').style.display = 'block';
+            }
+          }
+          type();
+        }, 1000);
+      }
+    };
+  </script>
+</body>
+</html>
